@@ -1,0 +1,179 @@
+{
+  "info": {
+    "name": "Interseguro – QR API",
+    "description": "Colección de endpoints para el Coding Challenge de Interseguro. Ejecutar primero Login para obtener el token JWT.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "node_url",
+      "value": "http://localhost:4000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.token) {",
+              "    pm.collectionVariables.set('token', json.token);",
+              "    console.log('Token guardado:', json.token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"interseguro123\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "login"]
+        },
+        "description": "Obtiene un token JWT válido por 24 horas. El token se guarda automáticamente en la variable {{token}} de la colección."
+      }
+    },
+    {
+      "name": "2. Factorización QR (3x2)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"matrix\": [\n    [1, 2],\n    [3, 4],\n    [5, 6]\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/qr",
+          "host": ["{{base_url}}"],
+          "path": ["qr"]
+        },
+        "description": "Factorización QR de una matriz 3x2. Retorna Q, R y estadísticas calculadas por la API Node.js."
+      }
+    },
+    {
+      "name": "3. Factorización QR (4x3)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"matrix\": [\n    [1,  2,  3],\n    [4,  5,  6],\n    [7,  8,  9],\n    [10, 11, 12]\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/qr",
+          "host": ["{{base_url}}"],
+          "path": ["qr"]
+        },
+        "description": "Factorización QR de una matriz 4x3."
+      }
+    },
+    {
+      "name": "4. Error – sin token (401)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"matrix\": [\n    [1, 2],\n    [3, 4],\n    [5, 6]\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/qr",
+          "host": ["{{base_url}}"],
+          "path": ["qr"]
+        },
+        "description": "Debe retornar 401 porque no se envía token."
+      }
+    },
+    {
+      "name": "5. Error – credenciales incorrectas (401)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"wrongpassword\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "login"]
+        },
+        "description": "Debe retornar 401 por credenciales incorrectas."
+      }
+    },
+    {
+      "name": "6. Error – matriz inválida m < n (422)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"matrix\": [\n    [1, 2, 3],\n    [4, 5, 6]\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/qr",
+          "host": ["{{base_url}}"],
+          "path": ["qr"]
+        },
+        "description": "Debe retornar 422 porque tiene más columnas que filas (m < n)."
+      }
+    },
+    {
+      "name": "7. Health – API Go",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Verifica que la API Go esté corriendo."
+      }
+    },
+    {
+      "name": "8. Health – API Node",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{node_url}}/health",
+          "host": ["{{node_url}}"],
+          "path": ["health"]
+        },
+        "description": "Verifica que la API Node.js esté corriendo."
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+# Go
+api-go/main
+api-go/docs/
+api-go/go.sum
+
+# Node
+api-node/node_modules/
+
+# React / Vite
+frontend/node_modules/
+frontend/dist/
+
+# Variables de entorno
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
